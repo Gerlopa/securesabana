@@ -77,21 +77,21 @@
                     <p class="text-xs text-slate-500 uppercase font-semibold">Incidentes en PostGIS</p>
                     <p id="statTotal" class="text-2xl font-bold text-slate-900">0</p>
                 </div>
-                <span class="text-3xl">🌍</span>
+                <span class="text-3xl"></span>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-slate-500 uppercase font-semibold">Categoría Más Afectada</p>
                     <p id="statCategoria" class="text-2xl font-bold text-blue-800">-</p>
                 </div>
-                <span class="text-3xl">🏪</span>
+                <span class="text-3xl"></span>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-slate-500 uppercase font-semibold">Modalidad Frecuente</p>
                     <p id="statModalidad" class="text-2xl font-bold text-red-600">-</p>
                 </div>
-                <span class="text-3xl">⚠️</span>
+                <span class="text-3xl"></span>
             </div>
         </div>
 
@@ -114,7 +114,7 @@
             <div class="space-y-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-red-200 text-center space-y-2">
                     <button id="btnPanico" onclick="activarPanico()" class="panic-btn w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-4 px-4 rounded-xl text-lg tracking-wide transition cursor-pointer">
-                        🚨 BOTÓN DE PÁNICO
+                          BOTÓN DE PÁNICO
                     </button>
                     <p class="text-xs text-slate-500">Guarda punto GPS en PostGIS, envía alerta y reenvía al correo de recuperación.</p>
                 </div>
@@ -155,7 +155,7 @@
                         </div>
 
                         <button type="button" onclick="obtenerGPS()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold py-2 rounded-lg cursor-pointer">
-                            🎯 Capturar GPS actual
+                             Capturar GPS actual
                         </button>
 
                         <div>
@@ -398,7 +398,7 @@
 
                 document.getElementById('alertaTexto').innerText = `Coordenadas (${lat}, ${lng}) registradas y reenviadas por correo.`;
                 document.getElementById('alertaBanner').classList.remove('hidden');
-                btn.innerText = "🚨 BOTÓN DE PÁNICO";
+                btn.innerText = " BOTÓN DE PÁNICO";
                 await cargarDatos();
                 map.setView([lat, lng], 16);
             };
