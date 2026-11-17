@@ -1,5 +1,4 @@
-import sys
-import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app import app
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
