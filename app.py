@@ -6,10 +6,10 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 
+import bcrypt
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -22,10 +22,23 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI(title="Vigía Sabana Centro")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 if os.path.isdir(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+def hashear_password(password: str) -> str:
+    pwd_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
+
+
+def verificar_password(password: str, password_hash: str) -> bool:
+    try:
+        pwd_bytes = password.encode("utf-8")[:72]
+        return bcrypt.checkpw(pwd_bytes, password_hash.encode("utf-8"))
+    except Exception:
+        return False
 
 
 class IncidenteCreate(BaseModel):
@@ -45,6 +58,11 @@ class PersonaCreate(BaseModel):
     password: str
     comercio: Optional[str] = None
     recibe_alertas: Optional[bool] = True
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 
 class RecuperacionSolicitar(BaseModel):
@@ -179,26 +197,55 @@ def exportar_incidentes_csv(db: Session = Depends(get_db)):
 
 @app.post("/api/personas")
 def registrar_persona(datos: PersonaCreate, db: Session = Depends(get_db)):
-    existente = db.query(Persona).filter(Persona.email == datos.email).first()
-    if existente:
-        raise HTTPException(status_code=400, detail="El correo ya está registrado en la tabla personas.")
+    try:
+        correo_limpio = datos.email.strip().lower()
+        existente = db.query(Persona).filter(Persona.email == correo_limpio).first()
+        if existente:
+            raise HTTPException(status_code=400, detail="El correo ya está registrado en la tabla personas.")
 
-    persona = Persona(
-        nombre=datos.nombre,
-        email=datos.email,
-        password_hash=pwd_context.hash(datos.password),
-        comercio=datos.comercio,
-        recibe_alertas=datos.recibe_alertas if datos.recibe_alertas is not None else True,
-    )
-    db.add(persona)
-    db.commit()
-    db.refresh(persona)
-    return {"mensaje": "Comercio suscrito correctamente a alertas.", "id": persona.id}
+        persona = Persona(
+            nombre=datos.nombre.strip(),
+            email=correo_limpio,
+            password_hash=hashear_password(datos.password),
+            rol="comerciante",
+            comercio=(datos.comercio or "").strip() or "Comercio registrado",
+            recibe_alertas=datos.recibe_alertas if datos.recibe_alertas is not None else True,
+        )
+        db.add(persona)
+        db.commit()
+        db.refresh(persona)
+        return {"mensaje": "Comercio suscrito correctamente a alertas.", "id": persona.id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error registrando persona: {e}")
+        raise HTTPException(status_code=500, detail=f"Error interno al guardar: {str(e)}")
+
+
+@app.post("/api/login")
+def iniciar_sesion(datos: LoginRequest, db: Session = Depends(get_db)):
+    correo_limpio = datos.email.strip().lower()
+    persona = db.query(Persona).filter(Persona.email == correo_limpio).first()
+    if not persona or not verificar_password(datos.password, persona.password_hash):
+        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos.")
+
+    return {
+        "mensaje": f"Bienvenido, {persona.nombre}",
+        "usuario": {
+            "id": persona.id,
+            "nombre": persona.nombre,
+            "email": persona.email,
+            "comercio": persona.comercio or "Comercio registrado",
+            "rol": persona.rol,
+        },
+    }
 
 
 @app.post("/api/recuperar/solicitar")
 def solicitar_recuperacion(datos: RecuperacionSolicitar, db: Session = Depends(get_db)):
-    persona = db.query(Persona).filter(Persona.email == datos.email).first()
+    correo_limpio = datos.email.strip().lower()
+    persona = db.query(Persona).filter(Persona.email == correo_limpio).first()
     if not persona:
         raise HTTPException(status_code=404, detail="No existe ningún usuario registrado con ese correo.")
 
@@ -226,24 +273,3 @@ def solicitar_recuperacion(datos: RecuperacionSolicitar, db: Session = Depends(g
     )
 
     return {"mensaje": "Token de recuperación generado y enviado al correo."}
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-
-@app.post("/api/login")
-def iniciar_sesion(datos: LoginRequest, db: Session = Depends(get_db)):
-    persona = db.query(Persona).filter(Persona.email == datos.email).first()
-    if not persona or not pwd_context.verify(datos.password, persona.password_hash):
-        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos.")
-
-    return {
-        "mensaje": f"Bienvenido, {persona.nombre}",
-        "usuario": {
-            "id": persona.id,
-            "nombre": persona.nombre,
-            "email": persona.email,
-            "comercio": persona.comercio or "Comercio registrado",
-            "rol": persona.rol,
-        },
-    }
