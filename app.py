@@ -226,3 +226,24 @@ def solicitar_recuperacion(datos: RecuperacionSolicitar, db: Session = Depends(g
     )
 
     return {"mensaje": "Token de recuperación generado y enviado al correo."}
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/api/login")
+def iniciar_sesion(datos: LoginRequest, db: Session = Depends(get_db)):
+    persona = db.query(Persona).filter(Persona.email == datos.email).first()
+    if not persona or not pwd_context.verify(datos.password, persona.password_hash):
+        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos.")
+
+    return {
+        "mensaje": f"Bienvenido, {persona.nombre}",
+        "usuario": {
+            "id": persona.id,
+            "nombre": persona.nombre,
+            "email": persona.email,
+            "comercio": persona.comercio or "Comercio registrado",
+            "rol": persona.rol,
+        },
+    }
