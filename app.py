@@ -1,15 +1,21 @@
+import csv
+import hashlib
+import io
 import os
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from sqlalchemy import func
-from passlib.context import CryptContext
 
-from database import get_db, Incidente, Persona
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from passlib.context import CryptContext
+from pydantic import BaseModel
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from config import APP_BASE_URL
+from database import Incidente, Persona, Recuperacion, get_db
 from email_service import despachar_alerta_incidente
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,13 +36,7 @@ class IncidenteCreate(BaseModel):
     descripcion: Optional[str] = None
     imagen_url: Optional[str] = None
     fecha_hora: Optional[datetime] = None
-
-
-class PanicoCreate(BaseModel):
-    lat: float
-    lng: float
-    comercio: Optional[str] = "Comercio Sabana Centro"
-    descripcion: Optional[str] = "Alerta activada mediante Botón de Pánico"
+    es_panico: Optional[bool] = False
 
 
 class PersonaCreate(BaseModel):
@@ -44,6 +44,11 @@ class PersonaCreate(BaseModel):
     email: str
     password: str
     comercio: Optional[str] = None
+    recibe_alertas: Optional[bool] = True
+
+
+class RecuperacionSolicitar(BaseModel):
+    email: str
 
 
 @app.get("/")
@@ -73,41 +78,42 @@ def listar_incidentes(db: Session = Depends(get_db)):
             func.ST_Y(Incidente.geom).label("lat"),
             func.ST_X(Incidente.geom).label("lng"),
         )
-        .order_by(Incidente.fecha_hora.desc())
-        .limit(200)
+        .order_by(Incidente.id.asc())
+        .limit(500)
         .all()
     )
 
-    features = []
+    resultado = []
     for row in filas:
-        features.append(
+        es_panico = (
+            "pánico" in (row.modalidad or "").lower()
+            or "panico" in (row.modalidad or "").lower()
+        )
+        resultado.append(
             {
-                "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [row.lng, row.lat],
-                },
-                "properties": {
-                    "id": row.id,
-                    "modalidad": row.modalidad,
-                    "categoria": row.categoria,
-                    "fecha_hora": row.fecha_hora.isoformat() if row.fecha_hora else None,
-                    "descripcion": row.descripcion,
-                    "imagen_url": row.imagen_url,
-                },
+                "id": row.id,
+                "modalidad": row.modalidad,
+                "categoria": row.categoria,
+                "lat": float(row.lat),
+                "lng": float(row.lng),
+                "fecha_hora": row.fecha_hora.strftime("%Y-%m-%d %H:%M") if row.fecha_hora else "",
+                "descripcion": row.descripcion or "",
+                "imagen_url": row.imagen_url,
+                "es_panico": es_panico,
             }
         )
 
-    return {"type": "FeatureCollection", "features": features}
+    return resultado
 
 
 @app.post("/api/incidentes")
 def crear_incidente(datos: IncidenteCreate, db: Session = Depends(get_db)):
     fecha = datos.fecha_hora or datetime.utcnow()
     punto_wkt = f"SRID=4326;POINT({datos.lng} {datos.lat})"
+    modalidad = "Alerta de Pánico" if datos.es_panico else datos.modalidad
 
     nuevo = Incidente(
-        modalidad=datos.modalidad,
+        modalidad=modalidad,
         categoria=datos.categoria,
         fecha_hora=fecha,
         geom=punto_wkt,
@@ -121,8 +127,8 @@ def crear_incidente(datos: IncidenteCreate, db: Session = Depends(get_db)):
     despachar_alerta_incidente(
         {
             "categoria": datos.categoria,
-            "modalidad": datos.modalidad,
-            "fecha_hora": fecha.isoformat(),
+            "modalidad": modalidad,
+            "fecha_hora": fecha.strftime("%Y-%m-%d %H:%M:%S"),
             "lat": datos.lat,
             "lng": datos.lng,
             "descripcion": datos.descripcion,
@@ -132,54 +138,91 @@ def crear_incidente(datos: IncidenteCreate, db: Session = Depends(get_db)):
     return {"mensaje": "Incidente registrado", "id": nuevo.id}
 
 
-@app.post("/api/panico")
-def activar_panico(datos: PanicoCreate, db: Session = Depends(get_db)):
-    fecha = datetime.utcnow()
-    punto_wkt = f"SRID=4326;POINT({datos.lng} {datos.lat})"
-    desc = f"[{datos.comercio}] {datos.descripcion}"
-
-    alerta = Incidente(
-        modalidad="Botón de Pánico",
-        categoria="EMERGENCIA",
-        fecha_hora=fecha,
-        geom=punto_wkt,
-        descripcion=desc,
-    )
-    db.add(alerta)
-    db.commit()
-    db.refresh(alerta)
-
-    enviado = despachar_alerta_incidente(
-        {
-            "categoria": "EMERGENCIA - PÁNICO",
-            "modalidad": "Botón de Pánico",
-            "fecha_hora": fecha.isoformat(),
-            "lat": datos.lat,
-            "lng": datos.lng,
-            "descripcion": desc,
-        }
+@app.get("/api/incidentes/exportar")
+def exportar_incidentes_csv(db: Session = Depends(get_db)):
+    filas = (
+        db.query(
+            Incidente.id,
+            Incidente.modalidad,
+            Incidente.categoria,
+            Incidente.fecha_hora,
+            Incidente.descripcion,
+            func.ST_Y(Incidente.geom).label("lat"),
+            func.ST_X(Incidente.geom).label("lng"),
+        )
+        .order_by(Incidente.id.desc())
+        .all()
     )
 
-    return {
-        "mensaje": "Alerta de pánico activada",
-        "id": alerta.id,
-        "correo_enviado": enviado,
-    }
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["ID", "Modalidad", "Categoria", "Latitud", "Longitud", "Fecha_Hora", "Descripcion"])
+
+    for row in filas:
+        writer.writerow([
+            row.id,
+            row.modalidad,
+            row.categoria,
+            row.lat,
+            row.lng,
+            row.fecha_hora.isoformat() if row.fecha_hora else "",
+            row.descripcion or "",
+        ])
+
+    buffer.seek(0)
+    return StreamingResponse(
+        iter([buffer.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=incidentes_sabana_centro.csv"},
+    )
 
 
-@app.post("/api/registro")
+@app.post("/api/personas")
 def registrar_persona(datos: PersonaCreate, db: Session = Depends(get_db)):
     existente = db.query(Persona).filter(Persona.email == datos.email).first()
     if existente:
-        raise HTTPException(status_code=400, detail="El correo ya está registrado")
+        raise HTTPException(status_code=400, detail="El correo ya está registrado en la tabla personas.")
 
     persona = Persona(
         nombre=datos.nombre,
         email=datos.email,
         password_hash=pwd_context.hash(datos.password),
         comercio=datos.comercio,
+        recibe_alertas=datos.recibe_alertas if datos.recibe_alertas is not None else True,
     )
     db.add(persona)
     db.commit()
     db.refresh(persona)
-    return {"mensaje": "Registro exitoso", "id": persona.id}
+    return {"mensaje": "Comercio suscrito correctamente a alertas.", "id": persona.id}
+
+
+@app.post("/api/recuperar/solicitar")
+def solicitar_recuperacion(datos: RecuperacionSolicitar, db: Session = Depends(get_db)):
+    persona = db.query(Persona).filter(Persona.email == datos.email).first()
+    if not persona:
+        raise HTTPException(status_code=404, detail="No existe ningún usuario registrado con ese correo.")
+
+    token_plano = secrets.token_urlsafe(24)
+    token_hash = hashlib.sha256(token_plano.encode("utf-8")).hexdigest()
+
+    rec = Recuperacion(
+        persona_id=persona.id,
+        token_hash=token_hash,
+        expira=datetime.utcnow() + timedelta(hours=1),
+        usado=False,
+    )
+    db.add(rec)
+    db.commit()
+
+    despachar_alerta_incidente(
+        {
+            "categoria": "RECUPERACIÓN DE CUENTA",
+            "modalidad": f"Solicitud para {persona.email}",
+            "fecha_hora": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+            "lat": 4.93,
+            "lng": -74.02,
+            "descripcion": f"Enlace/Token generado para {persona.nombre}: {APP_BASE_URL}/?token={token_plano}",
+        }
+    )
+
+    return {"mensaje": "Token de recuperación generado y enviado al correo."}
