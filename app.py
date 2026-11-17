@@ -44,6 +44,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def leer_index():
     return FileResponse("static/index.html")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # 1. CONSULTAR INCIDENTES DESDE POSTGIS (Extrayendo lat/lng de geom)
 @app.get("/api/incidentes")
