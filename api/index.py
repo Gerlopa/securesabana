@@ -1,7 +1,8 @@
 import os
 import sys
 
-# Agrega la carpeta raíz al path para que encuentre app.py, config.py, database.py y email_service.py
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 from app import app
