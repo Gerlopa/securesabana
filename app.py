@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from email_service import despachar_alerta_incidente, enviar_correo_recuperacion
 
 from config import APP_BASE_URL
 from database import Incidente, Persona, Recuperacion, get_db
@@ -261,15 +262,18 @@ def solicitar_recuperacion(datos: RecuperacionSolicitar, db: Session = Depends(g
     db.add(rec)
     db.commit()
 
-    despachar_alerta_incidente(
-        {
-            "categoria": "RECUPERACIÓN DE CUENTA",
-            "modalidad": f"Solicitud para {persona.email}",
-            "fecha_hora": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
-            "lat": 4.93,
-            "lng": -74.02,
-            "descripcion": f"Enlace/Token generado para {persona.nombre}: {APP_BASE_URL}/?token={token_plano}",
-        }
+    enlace = f"{APP_BASE_URL}/?token={token_plano}"
+    enviado, detalle = enviar_correo_recuperacion(
+        nombre=persona.nombre,
+        email_usuario=persona.email,
+        enlace=enlace,
+        token=token_plano,
     )
 
-    return {"mensaje": "Token de recuperación generado y enviado al correo."}
+    if not enviado:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Token guardado en Neon, pero falló el envío SMTP: {detalle}",
+        )
+
+    return {"mensaje": f"Correo de recuperación enviado a {persona.email} (con copia de respaldo)."}
