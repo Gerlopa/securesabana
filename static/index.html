@@ -22,21 +22,21 @@
         .panic-btn { animation: pulse-red 2s infinite; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="bg-black text-slate-100">
 
     <!-- ENCABEZADO -->
-    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+    <header class="bg-neutral-950/95 backdrop-blur border-b border-neutral-800 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <div class="bg-blue-600 p-2 rounded-lg font-bold text-xl">🛡️</div>
                 <div>
-                    <h1 class="text-lg md:text-xl font-bold tracking-tight">Vigía Sabana Centro</h1>
+                    <h1 class="text-lg md:text-xl font-bold tracking-tight text-white">Vigía Sabana Centro</h1>
                     <p class="text-xs text-slate-400">Plataforma Georreferenciada PostGIS</p>
                 </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <select id="municipioSelect" onchange="centrarMunicipio()" class="bg-slate-800 border border-slate-700 text-xs md:text-sm rounded-lg px-3 py-2 text-white">
+                <select id="municipioSelect" onchange="centrarMunicipio()" class="bg-neutral-900 border border-neutral-700 text-xs md:text-sm rounded-lg px-3 py-2 text-white">
                     <option value="sabana">Sabana Centro</option>
                     <option value="Chía">Chía</option>
                     <option value="Cajicá">Cajicá</option>
@@ -51,16 +51,16 @@
                     <option value="Cogua">Cogua</option>
                 </select>
 
-                <div id="usuarioBadge" class="hidden bg-emerald-800 border border-emerald-600 text-xs px-3 py-2 rounded-lg font-semibold flex items-center gap-2">
+                <div id="usuarioBadge" class="hidden bg-emerald-950 border border-emerald-700 text-emerald-300 text-xs px-3 py-2 rounded-lg font-semibold flex items-center gap-2">
                     <span id="usuarioNombre"></span>
-                    <button onclick="cerrarSesion()" class="text-red-300 hover:text-white ml-1 cursor-pointer" title="Cerrar sesión">✕</button>
+                    <button onclick="cerrarSesion()" class="text-red-400 hover:text-white ml-1 cursor-pointer" title="Cerrar sesión">✕</button>
                 </div>
 
-                <button id="btnAbrirLogin" onclick="abrirModalCorreo('login')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
+                <button id="btnAbrirLogin" onclick="abrirModalCorreo('login')" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
                     Iniciar Sesión
                 </button>
 
-                <button onclick="abrirModalCorreo('registro')" class="bg-blue-700 hover:bg-blue-600 text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
+                <button onclick="abrirModalCorreo('registro')" class="bg-blue-600 hover:bg-blue-500 text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
                     Alertas / Recuperación
                 </button>
             </div>
@@ -76,56 +76,56 @@
 
         <!-- MÉTRICAS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+            <div class="bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex justify-between items-center">
                 <div>
-                    <p class="text-xs text-slate-500 uppercase font-semibold">Incidentes en PostGIS</p>
-                    <p id="statTotal" class="text-2xl font-bold text-slate-900">0</p>
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Incidentes en PostGIS</p>
+                    <p id="statTotal" class="text-2xl font-bold text-white">0</p>
                 </div>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+            <div class="bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex justify-between items-center">
                 <div>
-                    <p class="text-xs text-slate-500 uppercase font-semibold">Categoría Más Afectada</p>
-                    <p id="statCategoria" class="text-2xl font-bold text-blue-800">-</p>
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Categoría Más Afectada</p>
+                    <p id="statCategoria" class="text-2xl font-bold text-blue-400">-</p>
                 </div>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+            <div class="bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex justify-between items-center">
                 <div>
-                    <p class="text-xs text-slate-500 uppercase font-semibold">Modalidad Frecuente</p>
-                    <p id="statModalidad" class="text-2xl font-bold text-red-600">-</p>
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Modalidad Frecuente</p>
+                    <p id="statModalidad" class="text-2xl font-bold text-red-400">-</p>
                 </div>
             </div>
         </div>
 
         <!-- MAPA + FORMULARIO -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+            <div class="lg:col-span-2 bg-neutral-950 p-4 rounded-xl border border-neutral-800 space-y-3">
                 <div class="flex flex-wrap justify-between items-center gap-2">
-                    <h2 class="font-bold text-slate-800 text-lg">Mapa de Microfocalización (SRID 4326)</h2>
+                    <h2 class="font-bold text-white text-lg">Mapa de Microfocalización (SRID 4326)</h2>
                     <div class="flex gap-2">
-                        <button onclick="toggleCapas('marcadores')" id="btnMarcadores" class="bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer">Marcadores</button>
-                        <button onclick="toggleCapas('calor')" id="btnCalor" class="bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer">Mapa de Calor</button>
-                        <a href="/api/incidentes/exportar" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium">Exportar CSV</a>
+                        <button onclick="toggleCapas('marcadores')" id="btnMarcadores" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer">Marcadores</button>
+                        <button onclick="toggleCapas('calor')" id="btnCalor" class="bg-neutral-800 text-slate-300 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer">Mapa de Calor</button>
+                        <a href="/api/incidentes/exportar" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium">Exportar CSV</a>
                     </div>
                 </div>
                 <div id="map"></div>
-                <p class="text-xs text-slate-500">Haz clic en cualquier punto del mapa para fijar las coordenadas `geom` antes de reportar.</p>
+                <p class="text-xs text-slate-400">Haz clic en cualquier punto del mapa para fijar las coordenadas `geom` antes de reportar.</p>
             </div>
 
             <!-- BOTÓN DE PÁNICO Y REPORTE -->
             <div class="space-y-4">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-red-200 text-center space-y-2">
-                    <button id="btnPanico" onclick="activarPanico()" class="panic-btn w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-4 px-4 rounded-xl text-lg tracking-wide transition cursor-pointer">
+                <div class="bg-neutral-950 p-4 rounded-xl border border-red-900/60 text-center space-y-2">
+                    <button id="btnPanico" onclick="activarPanico()" class="panic-btn w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-4 px-4 rounded-xl text-lg tracking-wide transition cursor-pointer">
                         BOTÓN DE PÁNICO
                     </button>
-                    <p class="text-xs text-slate-500">Guarda punto GPS en PostGIS, envía alerta y reenvía al correo de recuperación.</p>
+                    <p class="text-xs text-slate-400">Guarda punto GPS en PostGIS, envía alerta y reenvía al correo de recuperación.</p>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-3 border-b pb-2">Registrar Incidente</h3>
+                <div class="bg-neutral-950 p-5 rounded-xl border border-neutral-800">
+                    <h3 class="font-bold text-white mb-3 border-b border-neutral-800 pb-2">Registrar Incidente</h3>
                     <form id="reporteForm" onsubmit="enviarReporte(event)" class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría de Comercio</label>
-                            <select id="formCategoria" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Categoría de Comercio</label>
+                            <select id="formCategoria" required class="w-full bg-neutral-900 border border-neutral-700 text-white rounded-lg px-3 py-2 text-sm">
                                 <option value="Tienda de Conveniencia">Tienda de Conveniencia</option>
                                 <option value="Centro Comercial">Centro Comercial</option>
                                 <option value="Zona Gastronómica">Zona Gastronómica / Restaurante</option>
@@ -135,8 +135,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Modalidad Delictiva</label>
-                            <select id="formModalidad" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Modalidad Delictiva</label>
+                            <select id="formModalidad" required class="w-full bg-neutral-900 border border-neutral-700 text-white rounded-lg px-3 py-2 text-sm">
                                 <option value="Mechero">Mechero (Hurto hormiga)</option>
                                 <option value="Factor Oportunidad">Factor Oportunidad</option>
                                 <option value="Atraco">Atraco / Intimidación</option>
@@ -146,25 +146,25 @@
 
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Latitud</label>
-                                <input type="number" step="any" id="formLat" value="4.8616" required class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-xs bg-slate-50">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Latitud</label>
+                                <input type="number" step="any" id="formLat" value="4.8616" required class="w-full bg-neutral-900 border border-neutral-700 text-slate-200 rounded-lg px-2 py-1.5 text-xs">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Longitud</label>
-                                <input type="number" step="any" id="formLng" value="-74.0587" required class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-xs bg-slate-50">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Longitud</label>
+                                <input type="number" step="any" id="formLng" value="-74.0587" required class="w-full bg-neutral-900 border border-neutral-700 text-slate-200 rounded-lg px-2 py-1.5 text-xs">
                             </div>
                         </div>
 
-                        <button type="button" onclick="obtenerGPS()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold py-2 rounded-lg cursor-pointer">
+                        <button type="button" onclick="obtenerGPS()" class="w-full bg-neutral-800 hover:bg-neutral-700 text-slate-200 text-xs font-semibold py-2 rounded-lg cursor-pointer">
                             Capturar GPS actual
                         </button>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
-                            <input type="text" id="formDesc" placeholder="Detalles del hecho..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Descripción</label>
+                            <input type="text" id="formDesc" placeholder="Detalles del hecho..." class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-2 text-sm">
                         </div>
 
-                        <button type="submit" id="btnGuardar" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg text-sm cursor-pointer">
+                        <button type="submit" id="btnGuardar" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg text-sm cursor-pointer">
                             Guardar en Base de Datos
                         </button>
                     </form>
@@ -174,67 +174,67 @@
 
         <!-- TABLERO ANALÍTICO -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-800 mb-3">Incidentes por Modalidad</h3>
+            <div class="bg-neutral-950 p-5 rounded-xl border border-neutral-800">
+                <h3 class="font-bold text-white mb-3">Incidentes por Modalidad</h3>
                 <canvas id="chartModalidades" height="160"></canvas>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 overflow-y-auto max-h-80">
-                <h3 class="font-bold text-slate-800 mb-3">Historial de Incidentes (PostGIS)</h3>
+            <div class="bg-neutral-950 p-5 rounded-xl border border-neutral-800 overflow-y-auto max-h-80">
+                <h3 class="font-bold text-white mb-3">Historial de Incidentes (PostGIS)</h3>
                 <div id="listaReportes" class="space-y-2 text-sm"></div>
             </div>
         </div>
     </main>
 
     <!-- MODAL DE LOGIN, REGISTRO Y RECUPERACIÓN -->
-    <div id="modalCorreo" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-bold text-slate-900">Acceso de Comercios y Alertas</h3>
-                <button onclick="cerrarModalCorreo()" class="text-slate-500 font-bold cursor-pointer">✕</button>
+    <div id="modalCorreo" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-neutral-950 border border-neutral-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 class="font-bold text-white">Acceso de Comercios y Alertas</h3>
+                <button onclick="cerrarModalCorreo()" class="text-slate-400 hover:text-white font-bold cursor-pointer">✕</button>
             </div>
 
             <!-- Pestañas -->
-            <div id="tabsModal" class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg text-xs font-bold">
-                <button type="button" id="tabBtnLogin" onclick="cambiarTabModal('login')" class="py-1.5 rounded-md bg-blue-900 text-white cursor-pointer">Iniciar Sesión</button>
-                <button type="button" id="tabBtnRegistro" onclick="cambiarTabModal('registro')" class="py-1.5 rounded-md text-slate-600 cursor-pointer">Registrarse</button>
-                <button type="button" id="tabBtnRecuperar" onclick="cambiarTabModal('recuperar')" class="py-1.5 rounded-md text-slate-600 cursor-pointer">Recuperar</button>
+            <div id="tabsModal" class="grid grid-cols-3 gap-1 bg-neutral-900 p-1 rounded-lg text-xs font-bold">
+                <button type="button" id="tabBtnLogin" onclick="cambiarTabModal('login')" class="py-1.5 rounded-md bg-blue-600 text-white cursor-pointer">Iniciar Sesión</button>
+                <button type="button" id="tabBtnRegistro" onclick="cambiarTabModal('registro')" class="py-1.5 rounded-md text-slate-400 cursor-pointer">Registrarse</button>
+                <button type="button" id="tabBtnRecuperar" onclick="cambiarTabModal('recuperar')" class="py-1.5 rounded-md text-slate-400 cursor-pointer">Recuperar</button>
             </div>
 
             <!-- 1. Login -->
             <form id="formLogin" onsubmit="iniciarSesion(event)" class="space-y-3">
-                <input type="email" id="loginEmail" placeholder="Correo electrónico" required class="w-full border rounded-lg px-3 py-2 text-sm">
-                <input type="password" id="loginPass" placeholder="Contraseña" required class="w-full border rounded-lg px-3 py-2 text-sm">
-                <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white py-2.5 rounded-lg text-xs font-bold cursor-pointer">
+                <input type="email" id="loginEmail" placeholder="Correo electrónico" required class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-2 text-sm">
+                <input type="password" id="loginPass" placeholder="Contraseña" required class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-2 text-sm">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg text-xs font-bold cursor-pointer">
                     Entrar a Vigía Sabana
                 </button>
             </form>
 
             <!-- 2. Registro -->
             <form id="formRegistro" onsubmit="registrarPersona(event)" class="hidden space-y-2">
-                <input type="text" id="regNombre" placeholder="Nombre completo" required class="w-full border rounded-lg px-3 py-1.5 text-sm">
-                <input type="text" id="regComercio" placeholder="Nombre del comercio (Ej. Droguería Central)" class="w-full border rounded-lg px-3 py-1.5 text-sm">
-                <input type="email" id="regEmail" placeholder="Correo electrónico" required class="w-full border rounded-lg px-3 py-1.5 text-sm">
-                <input type="password" id="regPass" placeholder="Contraseña" required class="w-full border rounded-lg px-3 py-1.5 text-sm">
-                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold cursor-pointer">
+                <input type="text" id="regNombre" placeholder="Nombre completo" required class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-1.5 text-sm">
+                <input type="text" id="regComercio" placeholder="Nombre del comercio (Ej. Droguería Central)" class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-1.5 text-sm">
+                <input type="email" id="regEmail" placeholder="Correo electrónico" required class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-1.5 text-sm">
+                <input type="password" id="regPass" placeholder="Contraseña" required class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-1.5 text-sm">
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold cursor-pointer">
                     Registrar en Tabla Personas
                 </button>
             </form>
 
             <!-- 3. Recuperar -->
             <form id="formRecuperar" onsubmit="solicitarRecuperacion(event)" class="hidden space-y-2">
-                <p class="text-xs text-slate-500">Se enviará un enlace/token de recuperación a tu correo registrado.</p>
-                <input type="email" id="recEmail" placeholder="Correo registrado" required class="w-full border rounded-lg px-3 py-2 text-sm">
-                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-xs font-bold cursor-pointer">
+                <p class="text-xs text-slate-400">Se enviará un enlace/token de recuperación a tu correo registrado.</p>
+                <input type="email" id="recEmail" placeholder="Correo registrado" required class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-2 text-sm">
+                <button type="submit" class="w-full bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white py-2 rounded-lg text-xs font-bold cursor-pointer">
                     Enviar Token de Recuperación
                 </button>
             </form>
 
             <!-- 4. Confirmar nueva contraseña (cuando entra con ?token=...) -->
             <form id="formConfirmarClave" onsubmit="confirmarNuevaClave(event)" class="hidden space-y-3">
-                <p class="text-xs font-bold text-emerald-800 uppercase">Crear Nueva Contraseña</p>
+                <p class="text-xs font-bold text-emerald-400 uppercase">Crear Nueva Contraseña</p>
                 <input type="hidden" id="tokenRecuperacion">
-                <input type="password" id="nuevaClaveInput" placeholder="Escribe tu nueva contraseña" required minlength="4" class="w-full border rounded-lg px-3 py-2 text-sm">
-                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2.5 rounded-lg text-xs font-bold cursor-pointer">
+                <input type="password" id="nuevaClaveInput" placeholder="Escribe tu nueva contraseña" required minlength="4" class="w-full bg-neutral-900 border border-neutral-700 text-white placeholder-slate-500 rounded-lg px-3 py-2 text-sm">
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-lg text-xs font-bold cursor-pointer">
                     Guardar Nueva Contraseña
                 </button>
             </form>
@@ -250,7 +250,9 @@
         };
 
         const map = L.map('map').setView([4.9300, -74.0200], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap © CARTO'
+        }).addTo(map);
 
         let capaMarcadores = L.layerGroup().addTo(map);
         let capaCalor = null;
@@ -290,7 +292,7 @@
             listaHTML.innerHTML = '';
 
             if (!Array.isArray(datos) || datos.length === 0) {
-                listaHTML.innerHTML = '<p class="text-slate-400 text-xs">Aún no hay registros en la tabla incidentes.</p>';
+                listaHTML.innerHTML = '<p class="text-slate-500 text-xs">Aún no hay registros en la tabla incidentes.</p>';
                 document.getElementById('statTotal').innerText = '0';
                 return;
             }
@@ -298,10 +300,10 @@
             datos.slice().reverse().forEach(item => {
                 const marker = L.circleMarker([item.lat, item.lng], {
                     radius: item.es_panico ? 10 : 7,
-                    fillColor: item.es_panico ? 'red' : 'blue',
-                    color: '#fff',
+                    fillColor: item.es_panico ? '#ef4444' : '#3b82f6',
+                    color: '#000',
                     weight: 2,
-                    fillOpacity: 0.85
+                    fillOpacity: 0.9
                 }).bindPopup(`<b>${item.modalidad}</b><br>${item.categoria}<br>${item.descripcion}<br><small>${item.fecha_hora}</small>`);
                 capaMarcadores.addLayer(marker);
 
@@ -310,12 +312,12 @@
                 conteoCategoria[item.categoria] = (conteoCategoria[item.categoria] || 0) + 1;
 
                 listaHTML.innerHTML += `
-                    <div class="p-2.5 rounded-lg border ${item.es_panico ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'}">
+                    <div class="p-2.5 rounded-lg border ${item.es_panico ? 'bg-red-950/40 border-red-900' : 'bg-neutral-900 border-neutral-800'}">
                         <div class="flex justify-between font-bold text-xs">
-                            <span class="${item.es_panico ? 'text-red-700' : 'text-blue-900'}">#${item.id} • ${item.modalidad} (${item.categoria})</span>
-                            <span class="text-slate-400">${item.fecha_hora}</span>
+                            <span class="${item.es_panico ? 'text-red-400' : 'text-blue-400'}">#${item.id} • ${item.modalidad} (${item.categoria})</span>
+                            <span class="text-slate-500">${item.fecha_hora}</span>
                         </div>
-                        <p class="text-xs text-slate-600 mt-1">${item.descripcion}</p>
+                        <p class="text-xs text-slate-300 mt-1">${item.descripcion}</p>
                     </div>
                 `;
             });
@@ -333,9 +335,16 @@
                 type: 'bar',
                 data: {
                     labels: Object.keys(conteoModalidad),
-                    datasets: [{ data: Object.values(conteoModalidad), backgroundColor: ['#1e3a8a', '#dc2626', '#d97706', '#059669', '#7c3aed'], borderRadius: 6 }]
+                    datasets: [{ data: Object.values(conteoModalidad), backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6'], borderRadius: 6 }]
                 },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#262626' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#262626' } }
+                    }
+                }
             });
         }
 
@@ -344,12 +353,12 @@
                 map.removeLayer(capaMarcadores);
                 if (capaCalor) capaCalor.addTo(map);
                 document.getElementById('btnCalor').className = "bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
-                document.getElementById('btnMarcadores').className = "bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
+                document.getElementById('btnMarcadores').className = "bg-neutral-800 text-slate-300 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
             } else {
                 if (capaCalor) map.removeLayer(capaCalor);
                 capaMarcadores.addTo(map);
-                document.getElementById('btnMarcadores').className = "bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
-                document.getElementById('btnCalor').className = "bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
+                document.getElementById('btnMarcadores').className = "bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
+                document.getElementById('btnCalor').className = "bg-neutral-800 text-slate-300 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer";
             }
         }
 
@@ -433,10 +442,10 @@
                 const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
                 if (t === tab) {
                     form.classList.remove('hidden');
-                    btn.className = "py-1.5 rounded-md bg-blue-900 text-white cursor-pointer";
+                    btn.className = "py-1.5 rounded-md bg-blue-600 text-white cursor-pointer";
                 } else {
                     form.classList.add('hidden');
-                    btn.className = "py-1.5 rounded-md text-slate-600 cursor-pointer";
+                    btn.className = "py-1.5 rounded-md text-slate-400 cursor-pointer";
                 }
             });
         }
