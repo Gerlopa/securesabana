@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vigía Sabana Centro | PostGIS & Alertas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         #map { height: 480px; width: 100%; border-radius: 0.75rem; z-index: 1; }
         @keyframes pulse-red {
             0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
@@ -18,7 +22,7 @@
         .panic-btn { animation: pulse-red 2s infinite; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans">
+<body class="bg-slate-100 text-slate-800">
 
     <!-- ENCABEZADO -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
@@ -33,7 +37,7 @@
 
             <div class="flex flex-wrap items-center gap-2">
                 <select id="municipioSelect" onchange="centrarMunicipio()" class="bg-slate-800 border border-slate-700 text-xs md:text-sm rounded-lg px-3 py-2 text-white">
-                    <option value="sabana"> Sabana Centro</option>
+                    <option value="sabana">Sabana Centro</option>
                     <option value="Chía">Chía</option>
                     <option value="Cajicá">Cajicá</option>
                     <option value="Zipaquirá">Zipaquirá</option>
@@ -53,7 +57,7 @@
                 </div>
 
                 <button id="btnAbrirLogin" onclick="abrirModalCorreo('login')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
-                     Iniciar Sesión
+                    Iniciar Sesión
                 </button>
 
                 <button onclick="abrirModalCorreo('registro')" class="bg-blue-700 hover:bg-blue-600 text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
@@ -65,7 +69,7 @@
 
     <!-- BANNER DE ALERTA DE PÁNICO -->
     <div id="alertaBanner" class="hidden bg-red-600 text-white px-4 py-3 text-center font-bold shadow-md">
-     ALERTA DE PÁNICO GUARDADA EN POSTGIS Y REENVIADA POR CORREO: <span id="alertaTexto"></span>
+        ALERTA DE PÁNICO GUARDADA EN POSTGIS Y REENVIADA POR CORREO: <span id="alertaTexto"></span>
     </div>
 
     <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
@@ -77,21 +81,18 @@
                     <p class="text-xs text-slate-500 uppercase font-semibold">Incidentes en PostGIS</p>
                     <p id="statTotal" class="text-2xl font-bold text-slate-900">0</p>
                 </div>
-                <span class="text-3xl"></span>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-slate-500 uppercase font-semibold">Categoría Más Afectada</p>
                     <p id="statCategoria" class="text-2xl font-bold text-blue-800">-</p>
                 </div>
-                <span class="text-3xl"></span>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-slate-500 uppercase font-semibold">Modalidad Frecuente</p>
                     <p id="statModalidad" class="text-2xl font-bold text-red-600">-</p>
                 </div>
-                <span class="text-3xl"></span>
             </div>
         </div>
 
@@ -101,9 +102,9 @@
                 <div class="flex flex-wrap justify-between items-center gap-2">
                     <h2 class="font-bold text-slate-800 text-lg">Mapa de Microfocalización (SRID 4326)</h2>
                     <div class="flex gap-2">
-                        <button onclick="toggleCapas('marcadores')" id="btnMarcadores" class="bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer"> Marcadores</button>
-                        <button onclick="toggleCapas('calor')" id="btnCalor" class="bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer"> Mapa de Calor</button>
-                        <a href="/api/incidentes/exportar" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium"> Exportar CSV</a>
+                        <button onclick="toggleCapas('marcadores')" id="btnMarcadores" class="bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer">Marcadores</button>
+                        <button onclick="toggleCapas('calor')" id="btnCalor" class="bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer">Mapa de Calor</button>
+                        <a href="/api/incidentes/exportar" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium">Exportar CSV</a>
                     </div>
                 </div>
                 <div id="map"></div>
@@ -114,7 +115,7 @@
             <div class="space-y-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-red-200 text-center space-y-2">
                     <button id="btnPanico" onclick="activarPanico()" class="panic-btn w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-4 px-4 rounded-xl text-lg tracking-wide transition cursor-pointer">
-                          BOTÓN DE PÁNICO
+                        BOTÓN DE PÁNICO
                     </button>
                     <p class="text-xs text-slate-500">Guarda punto GPS en PostGIS, envía alerta y reenvía al correo de recuperación.</p>
                 </div>
@@ -155,7 +156,7 @@
                         </div>
 
                         <button type="button" onclick="obtenerGPS()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold py-2 rounded-lg cursor-pointer">
-                             Capturar GPS actual
+                            Capturar GPS actual
                         </button>
 
                         <div>
@@ -193,7 +194,7 @@
             </div>
 
             <!-- Pestañas -->
-            <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg text-xs font-bold">
+            <div id="tabsModal" class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg text-xs font-bold">
                 <button type="button" id="tabBtnLogin" onclick="cambiarTabModal('login')" class="py-1.5 rounded-md bg-blue-900 text-white cursor-pointer">Iniciar Sesión</button>
                 <button type="button" id="tabBtnRegistro" onclick="cambiarTabModal('registro')" class="py-1.5 rounded-md text-slate-600 cursor-pointer">Registrarse</button>
                 <button type="button" id="tabBtnRecuperar" onclick="cambiarTabModal('recuperar')" class="py-1.5 rounded-md text-slate-600 cursor-pointer">Recuperar</button>
@@ -225,6 +226,16 @@
                 <input type="email" id="recEmail" placeholder="Correo registrado" required class="w-full border rounded-lg px-3 py-2 text-sm">
                 <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-xs font-bold cursor-pointer">
                     Enviar Token de Recuperación
+                </button>
+            </form>
+
+            <!-- 4. Confirmar nueva contraseña (cuando entra con ?token=...) -->
+            <form id="formConfirmarClave" onsubmit="confirmarNuevaClave(event)" class="hidden space-y-3">
+                <p class="text-xs font-bold text-emerald-800 uppercase">Crear Nueva Contraseña</p>
+                <input type="hidden" id="tokenRecuperacion">
+                <input type="password" id="nuevaClaveInput" placeholder="Escribe tu nueva contraseña" required minlength="4" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2.5 rounded-lg text-xs font-bold cursor-pointer">
+                    Guardar Nueva Contraseña
                 </button>
             </form>
         </div>
@@ -322,7 +333,7 @@
                 type: 'bar',
                 data: {
                     labels: Object.keys(conteoModalidad),
-                    datasets: [{ data: Object.values(conteoModalidad), backgroundColor: ['#1e3a8a', '#dc2626', '#d97706', '#059669'], borderRadius: 6 }]
+                    datasets: [{ data: Object.values(conteoModalidad), backgroundColor: ['#1e3a8a', '#dc2626', '#d97706', '#059669', '#7c3aed'], borderRadius: 6 }]
                 },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
@@ -375,7 +386,7 @@
 
         async function activarPanico() {
             const btn = document.getElementById('btnPanico');
-            btn.innerText = "⏳ DESPACHANDO PÁNICO...";
+            btn.innerText = "DESPACHANDO PÁNICO...";
 
             const usuarioGuardado = localStorage.getItem('vigia_usuario');
             const autor = usuarioGuardado ? ` - Comercio: ${JSON.parse(usuarioGuardado).comercio} (${JSON.parse(usuarioGuardado).nombre})` : '';
@@ -398,7 +409,7 @@
 
                 document.getElementById('alertaTexto').innerText = `Coordenadas (${lat}, ${lng}) registradas y reenviadas por correo.`;
                 document.getElementById('alertaBanner').classList.remove('hidden');
-                btn.innerText = " BOTÓN DE PÁNICO";
+                btn.innerText = "BOTÓN DE PÁNICO";
                 await cargarDatos();
                 map.setView([lat, lng], 16);
             };
@@ -415,6 +426,8 @@
         }
 
         function cambiarTabModal(tab) {
+            document.getElementById('formConfirmarClave').classList.add('hidden');
+            document.getElementById('tabsModal').classList.remove('hidden');
             ['login', 'registro', 'recuperar'].forEach(t => {
                 const form = document.getElementById('form' + t.charAt(0).toUpperCase() + t.slice(1));
                 const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -443,7 +456,7 @@
             const btnLogin = document.getElementById('btnAbrirLogin');
             if (guardado) {
                 const u = JSON.parse(guardado);
-                document.getElementById('usuarioNombre').innerText = `👤 ${u.nombre} (${u.comercio})`;
+                document.getElementById('usuarioNombre').innerText = `${u.nombre} (${u.comercio})`;
                 badge.classList.remove('hidden');
                 btnLogin.classList.add('hidden');
             } else {
@@ -506,7 +519,40 @@
             cerrarModalCorreo();
         }
 
+        function verificarTokenURL() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            if (token) {
+                document.getElementById('tokenRecuperacion').value = token;
+                document.getElementById('modalCorreo').classList.remove('hidden');
+                document.getElementById('tabsModal').classList.add('hidden');
+                ['formLogin', 'formRegistro', 'formRecuperar'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+                document.getElementById('formConfirmarClave').classList.remove('hidden');
+            }
+        }
+
+        async function confirmarNuevaClave(e) {
+            e.preventDefault();
+            const res = await fetch('/api/recuperar/confirmar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: document.getElementById('tokenRecuperacion').value,
+                    nueva_password: document.getElementById('nuevaClaveInput').value
+                })
+            });
+            const data = await res.json();
+            alert(data.mensaje || data.detail);
+            if (res.ok) {
+                window.history.replaceState({}, document.title, "/");
+                cambiarTabModal('login');
+            }
+        }
+
         actualizarUIUsuario();
+        verificarTokenURL();
         cargarDatos();
     </script>
 </body>
