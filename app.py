@@ -13,11 +13,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from email_service import despachar_alerta_incidente, enviar_correo_recuperacion
 
 from config import APP_BASE_URL
 from database import Incidente, Persona, Recuperacion, get_db
-from email_service import despachar_alerta_incidente
+from email_service import despachar_alerta_incidente, enviar_correo_recuperacion
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -68,6 +67,11 @@ class LoginRequest(BaseModel):
 
 class RecuperacionSolicitar(BaseModel):
     email: str
+
+
+class RecuperacionConfirmar(BaseModel):
+    token: str
+    nueva_password: str
 
 
 @app.get("/")
@@ -277,3 +281,30 @@ def solicitar_recuperacion(datos: RecuperacionSolicitar, db: Session = Depends(g
         )
 
     return {"mensaje": f"Correo de recuperación enviado a {persona.email} (con copia de respaldo)."}
+
+
+@app.post("/api/recuperar/confirmar")
+def confirmar_recuperacion(datos: RecuperacionConfirmar, db: Session = Depends(get_db)):
+    token_hash = hashlib.sha256(datos.token.strip().encode("utf-8")).hexdigest()
+    rec = (
+        db.query(Recuperacion)
+        .filter(
+            Recuperacion.token_hash == token_hash,
+            Recuperacion.usado == False,
+            Recuperacion.expira > datetime.utcnow(),
+        )
+        .first()
+    )
+
+    if not rec:
+        raise HTTPException(status_code=400, detail="El token es inválido, ya fue usado o expiró.")
+
+    persona = db.query(Persona).filter(Persona.id == rec.persona_id).first()
+    if not persona:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado.")
+
+    persona.password_hash = hashear_password(datos.nueva_password)
+    rec.usado = True
+    db.commit()
+
+    return {"mensaje": "Contraseña actualizada correctamente. Ya puedes iniciar sesión."}
