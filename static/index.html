@@ -171,6 +171,12 @@
                             <input type="text" id="formDesc" placeholder="Detalles del hecho..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
                         </div>
 
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Evidencia Fotográfica (Opcional)</label>
+                            <input type="file" id="formFoto" accept="image/*" onchange="procesarFoto(event)" class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-xs bg-slate-50 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-900 file:text-white cursor-pointer">
+                            <img id="previewFoto" class="hidden mt-2 max-h-32 w-full object-cover rounded-lg border border-slate-300" alt="Vista previa">
+                        </div>
+
                         <button type="submit" id="btnGuardar" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg text-sm cursor-pointer">
                             Guardar en Base de Datos
                         </button>
@@ -204,7 +210,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <!-- 1. Mechero -->
                 <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-1.5">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-blue-900">1. Mechero (Hurto hormiga)</h4>
@@ -214,7 +219,6 @@
                     <p class="text-xs text-slate-600"><strong>Prevención:</strong> Espejos convexos en puntos ciegos, control de bolsos en entrada y saludo activo al ingresar.</p>
                 </div>
 
-                <!-- 2. Factor Oportunidad -->
                 <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-1.5">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-amber-900">2. Factor Oportunidad</h4>
@@ -224,7 +228,6 @@
                     <p class="text-xs text-slate-600"><strong>Prevención:</strong> Mantener objetos de valor fuera del alcance del mostrador y cerrar accesos secundarios.</p>
                 </div>
 
-                <!-- 3. Atraco -->
                 <div class="p-4 rounded-xl border border-red-200 bg-red-50/50 space-y-1.5">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-red-900">3. Atraco / Intimidación</h4>
@@ -234,7 +237,6 @@
                     <p class="text-xs text-slate-600"><strong>Prevención:</strong> No oponer resistencia, realizar arqueos frecuentes de caja y activar el <strong>Botón de Pánico</strong> apenas sea seguro.</p>
                 </div>
 
-                <!-- 4. Rompimiento de vidriera -->
                 <div class="p-4 rounded-xl border border-purple-200 bg-purple-50/50 space-y-1.5">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-purple-900">4. Rompimiento de vidriera</h4>
@@ -261,7 +263,6 @@
                 <button onclick="cerrarModalCorreo()" class="text-slate-500 font-bold cursor-pointer">✕</button>
             </div>
 
-            <!-- Pestañas -->
             <div id="tabsModal" class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg text-xs font-bold">
                 <button type="button" id="tabBtnLogin" onclick="cambiarTabModal('login')" class="py-1.5 rounded-md bg-blue-900 text-white cursor-pointer">Iniciar Sesión</button>
                 <button type="button" id="tabBtnRegistro" onclick="cambiarTabModal('registro')" class="py-1.5 rounded-md text-slate-600 cursor-pointer">Registrarse</button>
@@ -323,6 +324,7 @@
         let capaMarcadores = L.layerGroup().addTo(map);
         let capaCalor = null;
         let chartInstance = null;
+        let fotoBase64 = null;
 
         map.on('click', (e) => {
             document.getElementById('formLat').value = e.latlng.lat.toFixed(5);
@@ -346,6 +348,36 @@
             );
         }
 
+        function procesarFoto(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('previewFoto');
+            if (!file) {
+                fotoBase64 = null;
+                preview.classList.add('hidden');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const maxWidth = 800;
+                    const scale = Math.min(1, maxWidth / img.width);
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    fotoBase64 = canvas.toDataURL('image/jpeg', 0.72);
+                    preview.src = fotoBase64;
+                    preview.classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function cargarDatos() {
             const res = await fetch('/api/incidentes');
             const datos = await res.json();
@@ -364,13 +396,17 @@
             }
 
             datos.slice().reverse().forEach(item => {
+                const imgHTML = item.imagen_url
+                    ? `<img src="${item.imagen_url}" class="mt-2 max-h-36 w-full object-cover rounded-lg border border-slate-300" alt="Evidencia">`
+                    : '';
+
                 const marker = L.circleMarker([item.lat, item.lng], {
                     radius: item.es_panico ? 10 : 7,
                     fillColor: item.es_panico ? 'red' : 'blue',
                     color: '#fff',
                     weight: 2,
                     fillOpacity: 0.85
-                }).bindPopup(`<b>${item.modalidad}</b><br>${item.categoria}<br>${item.descripcion}<br><small>${item.fecha_hora}</small>`);
+                }).bindPopup(`<b>${item.modalidad}</b><br>${item.categoria}<br>${item.descripcion}<br><small>${item.fecha_hora}</small>${imgHTML}`);
                 capaMarcadores.addLayer(marker);
 
                 puntosCalor.push([item.lat, item.lng, item.es_panico ? 1.0 : 0.7]);
@@ -384,6 +420,7 @@
                             <span class="text-slate-400">${item.fecha_hora}</span>
                         </div>
                         <p class="text-xs text-slate-600 mt-1">${item.descripcion}</p>
+                        ${imgHTML}
                     </div>
                 `;
             });
@@ -436,6 +473,7 @@
                 lat: parseFloat(document.getElementById('formLat').value),
                 lng: parseFloat(document.getElementById('formLng').value),
                 descripcion: (document.getElementById('formDesc').value || "Reporte comercial") + autor,
+                imagen_url: fotoBase64,
                 es_panico: false
             };
 
@@ -446,6 +484,10 @@
             });
 
             document.getElementById('formDesc').value = '';
+            document.getElementById('formFoto').value = '';
+            document.getElementById('previewFoto').classList.add('hidden');
+            fotoBase64 = null;
+
             btn.disabled = false;
             btn.innerText = "Guardar en Base de Datos";
             await cargarDatos();
