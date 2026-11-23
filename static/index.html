@@ -51,6 +51,10 @@
                     <option value="Cogua">Cogua</option>
                 </select>
 
+                <button onclick="abrirModalGuia()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-2 rounded-lg font-semibold cursor-pointer">
+                    Guía de Hurtos
+                </button>
+
                 <div id="usuarioBadge" class="hidden bg-emerald-800 border border-emerald-600 text-xs px-3 py-2 rounded-lg font-semibold flex items-center gap-2">
                     <span id="usuarioNombre"></span>
                     <button onclick="cerrarSesion()" class="text-red-300 hover:text-white ml-1 cursor-pointer" title="Cerrar sesión">✕</button>
@@ -135,7 +139,10 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Modalidad Delictiva</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-semibold text-slate-600">Modalidad Delictiva</label>
+                                <button type="button" onclick="abrirModalGuia()" class="text-[11px] text-blue-700 hover:underline font-semibold cursor-pointer">¿Qué significa cada una?</button>
+                            </div>
                             <select id="formModalidad" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
                                 <option value="Mechero">Mechero (Hurto hormiga)</option>
                                 <option value="Factor Oportunidad">Factor Oportunidad</option>
@@ -184,6 +191,67 @@
             </div>
         </div>
     </main>
+
+    <!-- MODAL: GUÍA DE TIPOS DE HURTO -->
+    <div id="modalGuia" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-lg">Guía de Modalidades de Hurto Comercial</h3>
+                    <p class="text-xs text-slate-500">Clasificación estándar para el reporte georreferenciado en Sabana Centro</p>
+                </div>
+                <button onclick="cerrarModalGuia()" class="text-slate-500 hover:text-slate-800 font-bold text-lg cursor-pointer">✕</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <!-- 1. Mechero -->
+                <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-blue-900">1. Mechero (Hurto hormiga)</h4>
+                        <span class="text-[11px] font-semibold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Sin violencia</span>
+                    </div>
+                    <p class="text-xs text-slate-700">Sustracción oculta de mercancía de bajo o mediano valor durante el horario de atención al público, escondiendo artículos en prendas, bolsos o coches.</p>
+                    <p class="text-xs text-slate-600"><strong>Prevención:</strong> Espejos convexos en puntos ciegos, control de bolsos en entrada y saludo activo al ingresar.</p>
+                </div>
+
+                <!-- 2. Factor Oportunidad -->
+                <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-amber-900">2. Factor Oportunidad</h4>
+                        <span class="text-[11px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">Descuido</span>
+                    </div>
+                    <p class="text-xs text-slate-700">Aprovechamiento de un descuido momentáneo del comerciante o cliente (celulares sobre el mostrador, caja registradora abierta o puerta sin seguro durante descarga).</p>
+                    <p class="text-xs text-slate-600"><strong>Prevención:</strong> Mantener objetos de valor fuera del alcance del mostrador y cerrar accesos secundarios.</p>
+                </div>
+
+                <!-- 3. Atraco -->
+                <div class="p-4 rounded-xl border border-red-200 bg-red-50/50 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-red-900">3. Atraco / Intimidación</h4>
+                        <span class="text-[11px] font-semibold bg-red-100 text-red-800 px-2 py-0.5 rounded">Alta gravedad</span>
+                    </div>
+                    <p class="text-xs text-slate-700">Despojo de dinero o bienes mediante amenaza directa, fuerza física o uso de armas cortopunzantes o de fuego contra empleados o clientes.</p>
+                    <p class="text-xs text-slate-600"><strong>Prevención:</strong> No oponer resistencia, realizar arqueos frecuentes de caja y activar el <strong>Botón de Pánico</strong> apenas sea seguro.</p>
+                </div>
+
+                <!-- 4. Rompimiento de vidriera -->
+                <div class="p-4 rounded-xl border border-purple-200 bg-purple-50/50 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-purple-900">4. Rompimiento de vidriera</h4>
+                        <span class="text-[11px] font-semibold bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Nocturno / Daño</span>
+                    </div>
+                    <p class="text-xs text-slate-700">Fractura de vitrinas, cerraduras o rejas exteriores (modalidad "ventosa" o impacto directo), generalmente en horas de la madrugada cuando el local está cerrado.</p>
+                    <p class="text-xs text-slate-600"><strong>Prevención:</strong> Película de seguridad en vidrios, iluminación exterior permanente y sensores de apertura.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t">
+                <button onclick="cerrarModalGuia()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL DE LOGIN, REGISTRO Y RECUPERACIÓN -->
     <div id="modalCorreo" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -423,6 +491,14 @@
             } else {
                 despachar(parseFloat(document.getElementById('formLat').value), parseFloat(document.getElementById('formLng').value));
             }
+        }
+
+        function abrirModalGuia() {
+            document.getElementById('modalGuia').classList.remove('hidden');
+        }
+
+        function cerrarModalGuia() {
+            document.getElementById('modalGuia').classList.add('hidden');
         }
 
         function cambiarTabModal(tab) {
